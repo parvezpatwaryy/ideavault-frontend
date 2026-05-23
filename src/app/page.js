@@ -11,15 +11,18 @@ export default function HomePage() {
   const slides = [
     {
       title: "Bring Your Next Big Tech Idea to Life",
-      description: "Share, validate, and collaborate with innovators and entrepreneurs worldwide. Turn concepts into reality.",
+      description:
+        "Share, validate, and collaborate with innovators and entrepreneurs worldwide. Turn concepts into reality.",
     },
     {
       title: "Crowdsource Feedback for Your Startup",
-      description: "Get real, case-insensitive, actionable insights and reviews from developers and tech enthusiasts.",
+      description:
+        "Get real, case-insensitive, actionable insights and reviews from developers and tech enthusiasts.",
     },
     {
       title: "Discover Trending Micro-SaaS Concepts",
-      description: "Explore what the world is building today. Filter by technology, education, or AI categories seamlessly.",
+      description:
+        "Explore what the world is building today. Filter by technology, education, or AI categories seamlessly.",
     },
   ];
 
@@ -27,17 +30,27 @@ export default function HomePage() {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 5000);
+
     return () => clearInterval(timer);
   }, [slides.length]);
+
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/trending-ideas`)
+    const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const apiUrl =
+      configuredApiUrl?.includes("localhost") &&
+      window.location.hostname !== "localhost"
+        ? "https://ideavault-backend-flax.vercel.app"
+        : configuredApiUrl || "https://ideavault-backend-flax.vercel.app";
+
+    fetch(`${apiUrl}/api/trending-ideas`)
       .then((res) => res.json())
       .then((data) => {
-        setTrendingIdeas(data);
+        setTrendingIdeas(Array.isArray(data) ? data : []);
         setLoading(false);
       })
       .catch((err) => {
         console.error("Error fetching trending ideas:", err);
+        setTrendingIdeas([]);
         setLoading(false);
       });
   }, []);
@@ -56,16 +69,15 @@ export default function HomePage() {
             <p className="text-lg text-gray-300 mb-8 max-w-2xl">
               {slides[currentSlide].description}
             </p>
-            <div>
-              <a
-                href="#trending-section"
-                className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg hover:shadow-indigo-500/20 transition-all duration-300 transform hover:-translate-y-0.5"
-              >
-                Explore Ideas &rarr;
-              </a>
-            </div>
+            <a
+              href="#trending-section"
+              className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg hover:shadow-indigo-500/20 transition-all duration-300 transform hover:-translate-y-0.5"
+            >
+              Explore Ideas &rarr;
+            </a>
           </div>
         </div>
+
         <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
           {slides.map((_, index) => (
             <button
@@ -78,6 +90,7 @@ export default function HomePage() {
             />
           ))}
         </div>
+
         <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
       </section>
@@ -92,20 +105,28 @@ export default function HomePage() {
               ["100%", "Responsive design"],
             ].map(([value, label]) => (
               <div key={label} className="py-4">
-                <p className="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400">{value}</p>
-                <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mt-1">{label}</p>
+                <p className="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400">
+                  {value}
+                </p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mt-1">
+                  {label}
+                </p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="trending-section" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section
+        id="trending-section"
+        className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl text-gray-900 dark:text-white">
             🔥 Trending Ideas
           </h2>
         </div>
+
         {loading ? (
           <div className="flex justify-center items-center h-48">
             <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-indigo-600"></div>
@@ -123,7 +144,10 @@ export default function HomePage() {
               >
                 <div className="relative h-48 w-full overflow-hidden bg-gray-100 dark:bg-gray-800">
                   <img
-                    src={idea.imageUrl || "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80"} 
+                    src={
+                      idea.imageUrl ||
+                      "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80"
+                    }
                     alt={idea.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
@@ -131,6 +155,7 @@ export default function HomePage() {
                     {idea.category}
                   </span>
                 </div>
+
                 <div className="p-6 flex-1 flex flex-col justify-between">
                   <div>
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-2 leading-snug group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
@@ -140,25 +165,35 @@ export default function HomePage() {
                       {idea.shortDescription || idea.description}
                     </p>
                   </div>
+
                   <div className="mt-6 pt-4 border-t border-gray-50 dark:border-gray-800/60 text-xs text-gray-500 dark:text-gray-400 space-y-2">
                     <div className="flex justify-between items-center">
                       <div>
-                        <span className="text-gray-400 dark:text-gray-500">Target:</span>{" "}
-                        <span className="font-semibold text-gray-700 dark:text-gray-300">{idea.targetAudience}</span>
+                        <span className="text-gray-400 dark:text-gray-500">
+                          Target:
+                        </span>{" "}
+                        <span className="font-semibold text-gray-700 dark:text-gray-300">
+                          {idea.targetAudience}
+                        </span>
                       </div>
+
                       {idea.budget && (
                         <div className="text-indigo-600 dark:text-indigo-400 font-bold text-sm">
                           Budget: {idea.budget}
                         </div>
                       )}
                     </div>
-                    
-                    {idea.authorName && (
+
+                    {(idea.authorName || idea.userName) && (
                       <div className="text-gray-400 dark:text-gray-500">
-                        By: <span className="font-semibold text-gray-700 dark:text-gray-300">{idea.authorName}</span>
+                        By:{" "}
+                        <span className="font-semibold text-gray-700 dark:text-gray-300">
+                          {idea.authorName || idea.userName}
+                        </span>
                       </div>
                     )}
                   </div>
+
                   <div className="mt-6">
                     <Link
                       href={`/ideas/${idea._id}`}
@@ -177,20 +212,44 @@ export default function HomePage() {
       <section className="py-20 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">💡 Discover by Frameworks & Niches</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Filter out startup ideas specific to your technical expertise or interest areas.</p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+              💡 Discover by Frameworks & Niches
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              Filter out startup ideas specific to your technical expertise or
+              interest areas.
+            </p>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {["Artificial Intelligence", "Health-Tech", "SaaS & Tools", "E-Education", "Fintech", "Web3 / Crypto"].map((cat, i) => (
-              <div 
-                key={i} 
+            {[
+              "Artificial Intelligence",
+              "Health-Tech",
+              "SaaS & Tools",
+              "E-Education",
+              "Fintech",
+              "Web3 / Crypto",
+            ].map((cat, i) => (
+              <div
+                key={cat}
                 className="p-5 rounded-2xl bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800/60 text-center cursor-pointer hover:border-indigo-500 dark:hover:border-indigo-400 transition-all duration-200 group"
               >
-                <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-between mx-auto font-bold mb-3 justify-center group-hover:scale-110 transition-transform">
-                  {i === 0 ? "🤖" : i === 1 ? "🏥" : i === 2 ? "🛠️" : i === 3 ? "🎓" : i === 4 ? "💳" : "🪙"}
+                <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto font-bold mb-3 group-hover:scale-110 transition-transform">
+                  {i === 0
+                    ? "🤖"
+                    : i === 1
+                    ? "🏥"
+                    : i === 2
+                    ? "🛠️"
+                    : i === 3
+                    ? "🎓"
+                    : i === 4
+                    ? "💳"
+                    : "🪙"}
                 </div>
-                <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200">{cat}</h4>
+                <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                  {cat}
+                </h4>
               </div>
             ))}
           </div>
@@ -200,24 +259,43 @@ export default function HomePage() {
       <section className="py-20 bg-gray-50 dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">How IdeaVault Works</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+              How IdeaVault Works
+            </h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-              Move from rough idea to community-validated concept with a simple workflow.
+              Move from rough idea to community-validated concept with a simple
+              workflow.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              ["Share", "Publish your startup idea with the problem, solution, audience, and estimated budget."],
-              ["Validate", "Collect comments from other users and refine weak points before building."],
-              ["Track", "Manage your own ideas and interactions from private dashboard pages."],
+              [
+                "Share",
+                "Publish your startup idea with the problem, solution, audience, and estimated budget.",
+              ],
+              [
+                "Validate",
+                "Collect comments from other users and refine weak points before building.",
+              ],
+              [
+                "Track",
+                "Manage your own ideas and interactions from private dashboard pages.",
+              ],
             ].map(([title, description], index) => (
-              <div key={title} className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-6 shadow-sm">
+              <div
+                key={title}
+                className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-6 shadow-sm"
+              >
                 <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold mb-4">
                   {index + 1}
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">{title}</h3>
-                <p className="text-sm leading-6 text-gray-500 dark:text-gray-400 mt-2">{description}</p>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                  {title}
+                </h3>
+                <p className="text-sm leading-6 text-gray-500 dark:text-gray-400 mt-2">
+                  {description}
+                </p>
               </div>
             ))}
           </div>
