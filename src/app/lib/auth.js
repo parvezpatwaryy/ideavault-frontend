@@ -6,15 +6,13 @@ const client = new MongoClient(process.env.MONGODB_URI);
 const db = client.db();
 
 export const auth = betterAuth({
-  baseURL: process.env.BETTER_AUTH_URL,
   database: mongodbAdapter(db, {
     client,
   }),
   trustedOrigins: [
-    process.env.BETTER_AUTH_URL,
-    "https://*.vercel.app",
+    "https://ideavault-frontend-three.vercel.app",
     "http://localhost:3000",
-  ].filter(Boolean),
+  ],
   emailAndPassword: {
     enabled: true,
   },
